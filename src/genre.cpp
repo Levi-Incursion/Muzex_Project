@@ -5,7 +5,7 @@ set<int> generateID;
 class Song;
 int generate_ID(int offset, int range)
 {
-    srand((unsigned)time(NULL));
+    // srand((unsigned)time(NULL));
 
     int random = offset + (rand() % range);
 
@@ -16,7 +16,7 @@ int generate_ID(int offset, int range)
     }
     return offset + (rand() % range);
 }
-map<string,list<Song* >> artistMap; // string as a key for artist name and artist ID as value
+map<string, list<Song *>> artistMap; // string as a key for artist name and artist ID as value
 
 class Song
 {
@@ -39,22 +39,38 @@ public:
         this->album = album;
     }
     // Adds song to their respective artists
-void addSongToArtists(map<string, list<Song* >>& artistMap,Song& song)
-{
-    for(string master : song.artists)
+    void addSongToArtists(map<string, list<Song *>> &artistMap, Song &song)
     {
-        if(artistMap.find(master) == artistMap.end())
+        for (string master : song.artists)
         {
-            list<Song* > artistSongs;
-            artistSongs.push_back(&song);
-            artistMap[master] = artistSongs;
-        }
-        else
-        {
-            artistMap[master].push_back(&song);
+            if (artistMap.find(master) == artistMap.end())
+            {
+                list<Song *> artistSongs;
+                artistSongs.push_back(&song);
+                artistMap[master] = artistSongs;
+            }
+            else
+            {
+                artistMap[master].push_back(&song);
+            }
         }
     }
-}
+    string getTitle()
+    {
+        return title;
+    }
+    int getDuration()
+    {
+        return duration;
+    }
+    string getAlbum()
+    {
+        return album;
+    }
+    vector<string> getArtist()
+    {
+        return artists;
+    }
     void displaySong()
     {
         cout << "Song ID : " << songID << endl;
@@ -76,31 +92,57 @@ ostream &operator<<(ostream &COUT, Song &s)
     return COUT;
 }
 
-
-void displayArtistSongs(map<string, list<Song* >>& artistMap)
+void displayAllArtistSongDetail(Song &song, string master)
 {
-    for(auto it : artistMap)
+    // cout << "Song ID : " << songID << endl;
+    cout << "Title : " << song.getTitle() << endl;
+    vector<string> artists = song.getArtist();
+    if (artists.size() > 1)
+    {
+        cout << "Co-artists :" << endl;
+        int count = 0;
+        for (string s : artists)
+        {
+            if (s != master)
+                cout << ++count << "." << s << endl;
+        }
+    }
+    cout << "Duration : " << song.getDuration() << "sec" << endl;
+    cout << "Album :" << song.getAlbum() << endl;
+}
+void displayArtistSongs(map<string, list<Song *>> &artistMap)
+{
+    for (auto it : artistMap)
     {
         cout << "Artist : " << it.first << endl;
         int count = 0;
-        for(auto itr : it.second)
+        for (auto itr : it.second)
         {
-            cout <<++count<<". "<< *(itr) << endl;
+            cout<<++count<<".)  ";
+            displayAllArtistSongDetail(*(itr), it.first);
+            cout<< "********************************\n";
         }
         cout << "----------------------------------\n";
     }
 }
-
-    // class Artist
-    // {
-    //     private:
-    //         // int artistID;
-    //         // string artistName;
-
-    //         // list<Song*> artistSong;
-
-    // };
-    class genre
+// search all songs of an artist by name //
+void searchSongsByArtistName(string artistName)
+{
+    if(artistMap.find(artistName) == artistMap.end())
+    {
+        cout << "!! Artist Not Found in the Library !!" << endl;
+    }
+    else{
+        cout << artistName << " Songs :" << endl;
+        list<Song* > songList = artistMap[artistName];
+        int count = 0;
+        for(Song *s : songList)
+        {
+            cout << ++count <<"]\n"<<  *s << endl;
+        }
+    }
+}
+class genre
 {
 private:
     int genreID;
@@ -163,13 +205,14 @@ ostream &operator<<(ostream &COUT, Library &lib)
 int main()
 {
     Song s1 = Song("Mitwa", {"Shafqat Amanat Ali", "Shankar Mahadevan", "Caralisa Monteiro"}, 383, "Kabhi Alvida Naa Kehna");
-    s1.addSongToArtists(artistMap,s1);
+    s1.addSongToArtists(artistMap, s1);
     Song s2 = Song("Saware", {"Arijit Singh"}, 383, "Phantom");
-    s2.addSongToArtists(artistMap,s2);
+    s2.addSongToArtists(artistMap, s2);
     // Song s3("Dancing in the Moonlight", {"King Harvest"}, 200, "Old Friends");
-    // Song s4("Havana", {"Camila Cabello", "Young Thug"}, 217, "Camila");
+    Song s4("Havana", {"Camila Cabello", "Young Thug"}, 217, "Camila");
+    s4.addSongToArtists(artistMap, s4);
     Song s5("Tum Hi Ho", {"Arijit Singh"}, 275, "Aashiqui 2");
-    s5.addSongToArtists(artistMap,s5);
+    s5.addSongToArtists(artistMap, s5);
     // genre indianPop = genre("India Film Pop");
     // genre latinPop = genre("Latin Pop");
     // indianPop.addSongToGenre(s1);
@@ -179,8 +222,8 @@ int main()
     // lib.addGenreToLibrary(indianPop);
     // lib.addGenreToLibrary(latinPop);
     // cout << lib;
-    
-    displayArtistSongs(artistMap);
 
+    // displayArtistSongs(artistMap);
+    searchSongsByArtistName("Shankar Mahadevan");
     return 0;
 }
